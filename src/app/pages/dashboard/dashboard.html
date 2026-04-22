@@ -1,0 +1,79 @@
+
+<div class="container">
+  <div class="dashboard-header">
+    <div class="header-text">
+      <h2>Analytics</h2>
+      </div>
+    
+    <div class="controls-section">
+      <div class="filter-wrapper">
+        <i class='bx bx-filter-alt'></i>
+        <select [(ngModel)]="selectedFilter" (change)="applyFilter()" class="filter-select">
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="this-week">This Week</option>
+          <option value="last-week">Last Week</option>
+          <option value="this-month">This Month</option>
+          <option value="last-month">Last Month</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+
+      <div class="date-picker-container" *ngIf="selectedFilter === 'custom'">
+        <div class="date-input">
+          <input type="date" [(ngModel)]="startDate" (change)="applyFilter()">
+        </div>
+        <span class="date-separator">to</span>
+        <div class="date-input">
+          <input type="date" [(ngModel)]="endDate" (change)="applyFilter()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loader-box">
+    <div class="spinner"></div>
+    <p>Calculating metrics...</p>
+  </div>
+
+  <div class="stats-grid" *ngIf="!isLoading">
+    <div *ngFor="let card of displayStats" class="stat-card">
+      <div class="card-icon" [ngClass]="card.color">
+        <i [class]="card.icon"></i>
+      </div>
+      <div class="card-info">
+        <span class="title">{{ card.title }}</span>
+        <h3 class="value-small">{{ card.value }}</h3>
+        <span class="trend up" *ngIf="card.trend">
+          <i class='bx bx-up-arrow-alt'></i> {{card.trend}}% 
+          <small>vs last</small>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row" *ngIf="!isLoading">
+    <div class="chart-container">
+      <h4 style="margin-left: 1rem;">Report</h4>
+      <apx-chart 
+        [series]="revenueChart.series" 
+        [chart]="revenueChart.chart" 
+        [xaxis]="revenueChart.xaxis" 
+        [stroke]="revenueChart.stroke" 
+        [colors]="revenueChart.colors">
+      </apx-chart>
+    </div>
+
+    <div class="chart-container">
+      <h4 style="margin-left: 1rem;">Visits</h4>
+      <apx-chart 
+        [series]="visitsChart.series" 
+        [chart]="visitsChart.chart" 
+        [xaxis]="visitsChart.xaxis" 
+        [colors]="visitsChart.colors" 
+        [plotOptions]="visitsChart.plotOptions">
+      </apx-chart>
+    </div>
+  </div>
+
+  </div>

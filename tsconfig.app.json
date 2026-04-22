@@ -7,7 +7,9 @@
     "types": []
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+      "src/**/*.d.ts"  // <--- Make sure this is here
+
   ],
   "exclude": [
     "src/**/*.spec.ts"
