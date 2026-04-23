@@ -183,6 +183,7 @@
 /* 3. The Grid Fix */
 .charts-row {
   display: grid;
+  /* Desktop: 70% / 30% split */
   grid-template-columns: 7fr 3fr; 
   gap: 24px;
   margin-top: 24px;
@@ -195,34 +196,38 @@
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+  /* Use 'min-width: 0' to prevent ApexCharts from breaking grid layouts */
+  min-width: 0; 
   width: 100%; 
   box-sizing: border-box;
 }
 
+/* Tablet & Mobile View */
 @media (max-width: 1024px) {
-  .container {
-    padding: 16px;
-  }
-
   .charts-row {
+    /* Force a single column that fills 100% of the parent */
     grid-template-columns: 1fr; 
     gap: 16px;
     width: 100%;
+    /* Ensure there is no horizontal padding on the row itself if you want edge-to-edge */
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .chart-container {
-    min-height: 400px;
+    /* Remove any fixed min-height if you want it to be truly flexible */
+    min-height: auto; 
     width: 100%;
+    padding: 0;
   }
 }
 
-.chart-header h4 { margin-bottom: 20px; }
-
+/* Typography styles */
 .chart-header h3 {
   font-size: 18px;
   font-weight: 700;
   color: #111827;
-  margin: 0;
+  margin: 0 0 4px 0;
 }
 
 .chart-header p {
@@ -230,13 +235,6 @@
   color: #8E92BC;
   margin-bottom: 20px;
 }
-
-@media (max-width: 1024px) {
-  .charts-grid { grid-template-columns: 1fr; }
-  .charts-row { grid-template-columns: 1fr; }
-
-}
-
 
 /* ************************ */
 
