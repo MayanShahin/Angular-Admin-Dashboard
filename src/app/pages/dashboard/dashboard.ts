@@ -1,14 +1,14 @@
-
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
+import { FormsModule } from '@angular/forms';
 import { AnalyticsService } from '../../services/analytics.service';
 import { NgApexchartsModule } from "ng-apexcharts";
+import ApexCharts from 'apexcharts';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgApexchartsModule], 
+  imports: [CommonModule, FormsModule, NgApexchartsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
@@ -16,20 +16,35 @@ export class Dashboard implements OnInit {
   rawOrders: any[] = [];
   displayStats: any[] = [];
   selectedFilter: string = 'this-month';
-  startDate: string = '';
-  endDate: string = '';
   isLoading = true;
 
-  // Chart Properties ---
+  // ✅ Date properties fixed
+  startDate: string = '';
+  endDate: string = '';
+
   public revenueChart: any;
   public visitsChart: any;
 
-  
+  private resizeTimeout: any;
 
-  constructor(private analyticsService: AnalyticsService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private analyticsService: AnalyticsService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
+    const today = new Date().toISOString().split('T')[0];
+    this.startDate = today;
+    this.endDate = today;
     this.loadData();
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(() => {
+      this.refreshCharts();
+    }, 200);
   }
 
   loadData() {
@@ -54,12 +69,12 @@ export class Dashboard implements OnInit {
         case 'today': return itemTime >= todayStart;
         case 'yesterday': return itemTime >= (todayStart - oneDay) && itemTime < todayStart;
         case 'this-week': return itemTime >= (todayStart - (7 * oneDay));
-        case 'last-week': return itemTime >= (todayStart - (14 * oneDay)) && itemTime < (todayStart - (7 * oneDay));
         case 'this-month': return itemTime >= (todayStart - (30 * oneDay));
-        case 'last-month': return itemTime >= (todayStart - (60 * oneDay)) && itemTime < (todayStart - (30 * oneDay));
         case 'custom':
           if (!this.startDate || !this.endDate) return true;
-          return itemTime >= new Date(this.startDate).getTime() && itemTime <= new Date(this.endDate).getTime();
+          const start = new Date(this.startDate).getTime();
+          const end = new Date(this.endDate).getTime() + (oneDay - 1);
+          return itemTime >= start && itemTime <= end;
         default: return true;
       }
     });
@@ -69,6 +84,8 @@ export class Dashboard implements OnInit {
 
   calculateMetrics(data: any[]) {
     const revenue = data.reduce((acc, curr) => acc + curr.price, 0);
+    
+    // ✅ RE-ADDED the fourth card here
     this.displayStats = [
       { title: 'Total Revenue', value: '$' + revenue.toFixed(0), icon: 'bx bx-dollar', color: 'orders-bg' },
       { title: 'Daily Revenue', value: '$' + (revenue / 30).toFixed(0), icon: 'bx bx-trending-up', color: 'trans-bg' },
@@ -76,119 +93,52 @@ export class Dashboard implements OnInit {
       { title: 'Active Users', value: Math.floor(data.length * 1.5), icon: 'bx bx-user', color: 'users-bg' }
     ];
 
-    // Call Chart Init //
     this.initCharts(data);
   }
 
-  // New Chart Setup Method //
-private initCharts(data: any[]) {
-  // Sort the data by date
-  const sorted = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  
-  //  Take only the last 7 entries for one week of data
-  const lastSevenDays = sorted.slice(-7);
+  private initCharts(data: any[]) {
+    const sorted = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const lastSevenDays = sorted.slice(-7);
 
-  this.revenueChart = {
-    series: [{ 
-      name: "Revenue", 
-      data: lastSevenDays.map(i => i.price) 
-    }],
-    chart: { 
-      type: "area", 
-      height: 300,    
-      toolbar: { show: false },
-      zoom: { enabled: false }
-    },
-    colors: ["#4F46E5"],
-    stroke: { curve: "smooth", width: 3 },
-    xaxis: { 
-      // Mapping the dates to weekday names 
-      categories: lastSevenDays.map(i => 
-        new Date(i.date).toLocaleDateString('en-US', { weekday: 'short' })
-      ) 
-    },
-   yaxis: {
-  min: 0,
-  max: 100,
-  tickAmount: 5, 
-  labels: {
-    formatter: (value: number) => {
-      if (value === 0) return '0';
-      if (value === 20) return '$20k';
-      if (value === 50) return '$50k';
-      if (value === 70) return '$70k';
-      if (value === 100) return '$100k';
-      
-      return ''; 
-    }
-  }
-}
-  };
+    const commonChartSettings = {
+      width: '100%',
+      height: 300,
+      animations: { enabled: false },
+      redrawOnParentResize: true,
+      redrawOnWindowResize: true
+    };
 
-//  VISITS CHART: Updated to be dynamic and use an automatic scale
-//  Group the filtered data by date to get "Daily Visits"
+    this.revenueChart = {
+      series: [{ name: "Revenue", data: lastSevenDays.map(i => i.price) }],
+      chart: { id: "revenueChart", ...commonChartSettings, type: "area", toolbar: { show: false } },
+      colors: ["#4F46E5"],
+      stroke: { curve: "smooth", width: 3 },
+      xaxis: { 
+        categories: lastSevenDays.map(i => new Date(i.date).toLocaleDateString('en-US', { weekday: 'short' })) 
+      }
+    };
+
     const visitsByDate: { [key: string]: number } = {};
-    
     data.forEach(item => {
-      // Create a key like "Mon" or "Mon 12"
       const label = new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' });
       visitsByDate[label] = (visitsByDate[label] || 0) + 1;
     });
 
-    const labels = Object.keys(visitsByDate);
-    const counts = Object.values(visitsByDate);
-
     this.visitsChart = {
-      series: [{ 
-        name: "Visits", 
-        data: counts 
-      }],
-      chart: { 
-        type: "bar", 
-        height: 300, 
-        toolbar: { show: false },
-        redrawOnParentResize: true
-      },
-      dataLabels: {
-        enabled: false
-      },
+      series: [{ name: "Visits", data: Object.values(visitsByDate) }],
+      chart: { id: "visitsChart", ...commonChartSettings, type: "bar", toolbar: { show: false } },
       colors: ["#8B5CF6"],
-      plotOptions: { 
-        bar: { 
-          borderRadius: 8, 
-          columnWidth: '55%',
-          distributed: false 
-        } 
-      },
-      legend: {
-        show: false 
-      },
-      xaxis: { 
-        categories: labels,
-        labels: { 
-          show: true,
-          style: { colors: '#64748b', fontSize: '12px' }
-        },
-        axisBorder: { show: false },
-        axisTicks: { show: false }
-      },
-      yaxis: {
-        show: false,
-        labels: { show: false }
-      },
-      grid: {
-        show: false
-      },
-      tooltip: {
-        enabled: true,
-        y: { 
-          formatter: () => '', 
-          title: { formatter: () => 'Visitors' } 
-        }
-      }
+      plotOptions: { bar: { borderRadius: 8, columnWidth: '55%' } },
+      xaxis: { categories: Object.keys(visitsByDate) }
     };
-
   }
 
-}
+  private refreshCharts() {
+    ApexCharts.exec("revenueChart", "updateOptions", {});
+    ApexCharts.exec("visitsChart", "updateOptions", {});
+  }
 
+  public triggerResize() {
+    setTimeout(() => { this.refreshCharts(); }, 500);
+  }
+}

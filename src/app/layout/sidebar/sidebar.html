@@ -1,53 +1,64 @@
+<button class="floating-btn" *ngIf="isCollapsed" (click)="toggleSidebar()">
+  <i class='bx bx-menu'></i>
+</button>
 
-<div class="sidebar-container">
-  <div class="logo">
-    <p>Manager <span style="color: #4F46E5;">Pro</span> </p>
+<div class="sidebar-container" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <div class="logo">
+      <p>Manager <span style="color: #4F46E5;">Pro</span></p>
+    </div>
+    
+    <button class="close-btn" (click)="toggleSidebar()">
+      <i class='bx bx-chevron-left'></i>
+    </button>
   </div>
-  <nav>
-    <ul>
-<nav class="nav-section">
-    <ul class="menu-list">
-      <li class="menu-item active">
-        <i class='bx bx-home-alt-2 icon'></i> 
-        <span>Dashboard</span>
-      </li>
-      <li class="menu-item">
-        <i class='bx bx-cart icon'></i>
-        <span>Orders</span>
-      </li>
-      <li class="menu-item">
-        <i class='bx bx-group icon'></i>
-        <span>Users</span>
-      </li>
-      <li class="menu-item">
-        <i class='bx bx-store icon'></i>
-        <span>Items</span>
-      </li>
-      <li class="menu-item">
-        <i class='bx bx-receipt icon'></i>
-        <span>Transactions</span>
-      </li>
-      <li class="menu-item">
-        <i class='bx bx-bar-chart-alt-2 icon'></i>
-        <span>Reports</span>
-      </li>
-    </ul>
 
-    <div class="separator"></div>
+  <div class="nav-content">
+    <nav class="nav-section">
+      <ul class="menu-list">
+        <li class="menu-item" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <i class='bx bx-home-alt-2 icon'></i> 
+          <span>Dashboard</span>
+        </li>
+        <li class="menu-item" routerLink="/orders" routerLinkActive="active">
+          <i class='bx bx-cart icon'></i>
+          <span>Orders</span>
+        </li>
+        <li class="menu-item" routerLink="/users" routerLinkActive="active">
+          <i class='bx bx-group icon'></i>
+          <span>Users</span>
+        </li>
+        <li class="menu-item" routerLink="/items" routerLinkActive="active">
+          <i class='bx bx-store icon'></i>
+          <span>Items</span>
+        </li>
+        <li class="menu-item" routerLink="/transactions" routerLinkActive="active">
+          <i class='bx bx-receipt icon'></i>
+          <span>Transactions</span>
+        </li>
+        <li class="menu-item" routerLink="/reports" routerLinkActive="active">
+          <i class='bx bx-bar-chart-alt-2 icon'></i>
+          <span>Reports</span>
+        </li>
+      </ul>
 
-    <ul class="menu-list">
-      <li class="menu-item">
-        <i class='bx bx-message-rounded-dots icon'></i>
-        <span>Messages</span>
-        <span class="badge"></span>
-      </li>
-      <li class="menu-item">
-        <i class='bx bx-support icon'></i>
-        <span>Support</span>
-      </li>
-      <li class="menu-item last-li">
-        <i class='bx bx-cog icon'></i>
-        <span>Settings</span>
-      </li>
-    </ul>
-  </nav>
+      <div class="separator"></div>
+
+      <ul class="menu-list">
+        <li class="menu-item" routerLink="/messages" routerLinkActive="active">
+          <i class='bx bx-message-rounded-dots icon'></i>
+          <span>Messages</span>
+          <span class="badge"></span>
+        </li>
+        <li class="menu-item" routerLink="/support" routerLinkActive="active">
+          <i class='bx bx-support icon'></i>
+          <span>Support</span>
+        </li>
+        <li class="menu-item last-li" routerLink="/settings" routerLinkActive="active">
+          <i class='bx bx-cog icon'></i>
+          <span>Settings</span>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

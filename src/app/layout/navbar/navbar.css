@@ -17,6 +17,7 @@
   border-radius: 12px;
   width: 350px; 
   transition: all 0.3s ease;
+  margin-left: 3rem;
 }
 
 .search-icon {
@@ -110,5 +111,8 @@
   .avatar-container {
     width: 35px;     /* Smaller profile image for small screens */
     height: 35px;
+  }
+  .search-box {
+    margin-left: 3.5rem;
   }
 }

@@ -193,17 +193,39 @@
   box-sizing: border-box;
 }
 
-.chart-container {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03);
-  /* Use 'min-width: 0' to prevent ApexCharts from breaking grid layouts */
-  min-width: 0; 
-  width: 100%; 
-  box-sizing: border-box;
+.dashboard-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
+.chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  /* Prevents the card itself from shrinking */
+  flex: 0 0 auto; 
+  
+}
+
+.canvas-container {
+  /* Set a fixed height for the internal area */
+  height: 300px;
+  width: 100%;}
+
+.fixed-chart-box {
+  /* SET YOUR EXACT WIDTH HERE */
+  width: 800px; 
+  height: 400px;
+  
+  /* CRITICAL: Tell flexbox to never squeeze this element */
+  flex-shrink: 0; 
+  flex-grow: 0;
+  
+  /* Ensures any overflow is hidden if the screen is tiny */
+  overflow: hidden; 
+}
 /* Tablet & Mobile View */
 @media (max-width: 1024px) {
   .charts-row {
@@ -249,3 +271,96 @@
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+
+
+
+.charts-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap; /* Allows stacking on mobile */
+  margin-top: 25px;
+}
+
+.report-card, .visits-card {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* DESKTOP STYLES */
+@media (min-width: 769px) {
+  .report-card {
+    flex: 0 0 800px; /* Chart 750 + Padding */
+  }
+  .visits-card {
+    flex: 0 0 400px; /* Chart 350 + Padding */
+  }
+}
+
+.charts-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap; /* CRITICAL: Allows charts to wrap on mobile */
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.report-card, .visits-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box; /* Ensures padding doesn't add to width */
+}
+
+/* Desktop: Fixed widths to prevent sidebar jumping */
+@media (min-width: 769px) {
+  .report-card {
+    flex: 0 0 790px; 
+  }
+  .visits-card {
+    flex: 0 0 390px;
+  }
+}
+
+/* Mobile: Force full width visibility */
+.charts-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap; /* Stacks on mobile automatically */
+  width: 100%;
+}
+
+.report-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  /* Grows to take more space, but stays responsive */
+  flex: 2 1 600px; 
+  min-width: 0; /* Important for flex-shrink */
+}
+
+.visits-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  /* Takes less space than the report but still grows */
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+/* Ensure ApexCharts fills the parent card */
+apx-chart {
+  width: 100% !important;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .report-card, .visits-card {
+    flex: 1 1 100%;
+    margin-bottom: 10px;
+  }
+}
+
