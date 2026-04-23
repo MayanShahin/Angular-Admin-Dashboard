@@ -172,6 +172,8 @@
   padding: 24px;
   overflow-x: hidden;
   box-sizing: border-box;
+  background-color: #F8FAFC !important;
+
 }
 
 ::ng-deep .content-view {
